@@ -1,70 +1,76 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from "react";
+import { View, TextInput, Button, Text } from "react-native";
+import axios from "axios";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const App = () => {
+  const [cep, setCep] = useState("");
+  const [address, setAddress] = useState(null);
 
-export default function HomeScreen() {
+  const fetchAddress = async () => {
+    try {
+      const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+      setAddress(response.data);
+    } catch (error) {
+      console.error("Error fetching address:", error);
+      setAddress(null);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "gray",
+      }}
+      //Estilização do fundo
+    >
+      <TextInput
+        style={{
+          borderColor: "black",
+          borderWidth: 1,
+          borderRadius: 2,
+          width: 150,
+        }}
+        //estilização do text input
+        placeholder="Digite o CEP"
+        value={cep}
+        onChangeText={setCep}
+        keyboardType="numeric"
+      />
+      <Button title="Buscar Endereço" onPress={fetchAddress} />
+      {address && (
+        <View
+          style={{
+            backgroundColor: "white",
+            borderRadius: 4,
+            width: 200,
+            height: 110,
+            marginTop: 7,
+          }}
+          //Estilização da View dos resultados
+        >
+          <Text style={{ marginTop: 2, marginLeft: 6 }}>
+            CEP: {address.cep}
+          </Text>
+          <Text style={{ marginTop: 2, marginLeft: 6 }}>
+            Rua: {address.logradouro}
+          </Text>
+          <Text style={{ marginTop: 2, marginLeft: 6 }}>
+            Bairro: {address.bairro}
+          </Text>
+          <Text style={{ marginTop: 2, marginLeft: 6 }}>
+            Cidade: {address.localidade}
+          </Text>
+          <Text style={{ marginTop: 2, marginLeft: 6 }}>
+            Estado: {address.uf}
+          </Text>
+        </View>
+        //Estilização dos resultados 
+      )}
+    </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+export default App;
